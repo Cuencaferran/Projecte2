@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<title>Betting + Casino SPA</title>
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0f0f0f;
+  color: white;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 220px 1fr 300px;
+  height: 100vh;
+}
+
+.sidebar {
+  background: #1a1a1a;
+  padding: 10px;
+}
+
+.sidebar div {
+  margin: 8px 0;
+  cursor: pointer;
+}
+
+.main {
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.match {
+  background: #1e1e1e;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+button {
+  margin: 5px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.betslip {
+  background: #1a1a1a;
+  padding: 10px;
+}
+
+/* CASINO */
+.casino {
+  margin-top: 20px;
+}
+
+.slot {
+  font-size: 30px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="sidebar">
+    <h3>Menú</h3>
+    <div onclick="showSports()">Esports</div>
+    <div onclick="showCasino()">Casino</div>
+  </div>
+
+  <div class="main" id="main"></div>
+
+  <div class="betslip">
+    <h3>Bet Slip</h3>
+    <div id="bets"></div>
+  </div>
+</div>
+
+<script>
+// GENERADOR MASSIU DE PARTITS
+const teams = ["Barça","Madrid","City","PSG","Bayern","Inter","Milan"];
+const nbaTeams = ["Lakers","Bulls","Heat","Warriors"];
+const tennisPlayers = ["Nadal","Djokovic","Alcaraz","Federer"];
+
+function generateMatches(list, type) {
+  let matches = [];
+  for (let i = 0; i < list.length - 1; i++) {
+    matches.push({
+      match: list[i] + " vs " + list[i+1],
+      odds: {
+        "1": (1.5 + Math.random()).toFixed(2),
+        "X": (2 + Math.random()).toFixed(2),
+        "2": (1.5 + Math.random()).toFixed(2)
+      }
+    });
+  }
+  return matches;
+}
+
+const sportsData = {
+  futbol: generateMatches(teams),
+  nba: generateMatches(nbaTeams),
+  tennis: generateMatches(tennisPlayers)
+};
+
+let betslip = [];
+
+// MOSTRAR ESPORTS
+function showSports() {
+  const main = document.getElementById("main");
+  main.innerHTML = "<h2>Esports</h2>";
+
+  Object.keys(sportsData).forEach(sport => {
+    main.innerHTML += `<h3>${sport}</h3>`;
+
+    sportsData[sport].forEach(m => {
+      let html = `<div class="match"><b>${m.match}</b><br>`;
+      Object.keys(m.odds).forEach(o => {
+        html += `<button onclick="addBet('${m.match}','${o}',${m.odds[o]})">${o} (${m.odds[o]})</button>`;
+      });
+      html += "</div>";
+
+      main.innerHTML += html;
+    });
+  });
+}
+
+// BETSLIP
+function addBet(match, type, odd) {
+  betslip.push({ match, type, odd });
+  renderBets();
+}
+
+function renderBets() {
+  const div = document.getElementById("bets");
+  div.innerHTML = "";
+  betslip.forEach(b => {
+    div.innerHTML += `<p>${b.match} - ${b.type} @ ${b.odd}</p>`;
+  });
+}
+
+// CASINO
+function showCasino() {
+  const main = document.getElementById("main");
+
+  main.innerHTML = `
+    <h2>Casino</h2>
+
+    <h3>Ruleta</h3>
+    <button onclick="spinRoulette()">Girar</button>
+    <p id="rouletteResult"></p>
+
+    <h3>Slots</h3>
+    <div class="slot" id="slot">🍒 🍋 🍉</div>
+    <button onclick="spinSlot()">Spin</button>
+  `;
+}
+
+// RULETA
+function spinRoulette() {
+  const num = Math.floor(Math.random() * 37);
+  document.getElementById("rouletteResult").textContent =
+    "Número: " + num;
+}
+
+// SLOTS
+function spinSlot() {
+  const symbols = ["🍒","🍋","🍉","⭐","💎"];
+  const res = [
+    symbols[Math.floor(Math.random()*symbols.length)],
+    symbols[Math.floor(Math.random()*symbols.length)],
+    symbols[Math.floor(Math.random()*symbols.length)]
+  ];
+
+  document.getElementById("slot").textContent = res.join(" ");
+}
+
+// INIT
+showSports();
+</script>
+
+</body>
+</html>
